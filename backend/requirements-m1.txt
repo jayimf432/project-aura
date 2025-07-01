@@ -1,0 +1,66 @@
+# FastAPI and web framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-dotenv==1.0.0
+
+# AI and Machine Learning
+# torch  # Install manually for your platform (see below)
+# torchvision  # Install manually for your platform (see below)
+# torchaudio  # Install manually for your platform (see below)
+#
+# On Mac M1/M2:
+#   pip install torch torchvision torchaudio
+# On Linux/Windows:
+#   See https://pytorch.org/get-started/locally/ for the correct install command
+
+diffusers==0.24.0
+transformers==4.35.2
+accelerate==0.24.1
+safetensors==0.4.0
+# xformers==0.0.22.post7  # Not needed for M1
+
+# Computer Vision and Video Processing
+opencv-python==4.8.1.78
+Pillow==10.1.0
+imageio==2.33.0
+# imageio-ffmpeg==0.4.9  # Commented out due to build issues
+
+# Data processing and utilities
+numpy>=1.26.0  # Updated for Python 3.12 compatibility
+pandas>=2.0.0
+scipy>=1.11.0
+# scikit-image==0.21.0  # Commented out due to numpy dependency issues
+
+# HTTP and API
+httpx==0.25.2
+aiofiles==23.2.1
+websockets==12.0
+
+# Database (optional)
+sqlalchemy==2.0.23
+alembic==1.12.1
+# psycopg2-binary==2.9.9  # Commented out - install if using PostgreSQL
+
+# Caching
+redis==5.0.1
+
+# Testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
+
+# Development and debugging
+pydantic==2.5.0
+pydantic-settings==2.1.0
+loguru==0.7.2
+
+# Security
+cryptography==41.0.8
+
+# File handling
+pathlib2==2.3.7
+
+# Environment and configuration
+python-decouple==3.8 

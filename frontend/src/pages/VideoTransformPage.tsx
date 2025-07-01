@@ -1,0 +1,264 @@
+import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Video, Sparkles, ArrowLeft } from 'lucide-react'
+import VideoUpload from '../components/VideoUpload'
+import TransformationForm, { TransformationData } from '../components/TransformationForm'
+import TransformationStatus from '../components/TransformationStatus'
+import toast from 'react-hot-toast'
+
+type Step = 'upload' | 'transform' | 'status'
+
+const VideoTransformPage = () => {
+  const [currentStep, setCurrentStep] = useState<Step>('upload')
+  const [jobId, setJobId] = useState<string>('')
+  const [filename, setFilename] = useState<string>('')
+  const [transforming, setTransforming] = useState(false)
+
+  const handleVideoUploaded = (jobId: string, filename: string) => {
+    setJobId(jobId)
+    setFilename(filename)
+    setCurrentStep('transform')
+  }
+
+  const handleTransformationSubmit = async (data: TransformationData) => {
+    setTransforming(true)
+    
+    try {
+      const response = await fetch(`/api/v1/video/transform`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: data.prompt,
+          conditions: data.conditions,
+          style_preset: data.stylePreset,
+          quality: data.quality
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to start transformation')
+      }
+
+      const result = await response.json()
+      setCurrentStep('status')
+      toast.success('Transformation started successfully!')
+      
+    } catch (error) {
+      console.error('Transformation error:', error)
+      toast.error('Failed to start transformation. Please try again.')
+    } finally {
+      setTransforming(false)
+    }
+  }
+
+  const handleTransformationComplete = (outputUrl: string) => {
+    toast.success('Video transformation completed! You can now download your video.')
+  }
+
+  const handleTransformationError = (error: string) => {
+    toast.error(`Transformation failed: ${error}`)
+  }
+
+  const resetProcess = () => {
+    setCurrentStep('upload')
+    setJobId('')
+    setFilename('')
+    setTransforming(false)
+  }
+
+  return (
+    <div className="min-h-screen py-12">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-12"
+        >
+          <div className="flex items-center justify-center space-x-2 mb-4">
+            <Video className="h-8 w-8 text-primary-400" />
+            <h1 className="text-4xl font-bold text-dark-100">Video Transformation</h1>
+          </div>
+          <p className="text-xl text-dark-300">
+            Upload your video and transform it with AI-powered cinematic effects
+          </p>
+        </motion.div>
+
+        {/* Progress Steps */}
+        <div className="flex items-center justify-center mb-8">
+          <div className="flex items-center space-x-4">
+            {[
+              { step: 'upload', label: 'Upload Video', icon: Video },
+              { step: 'transform', label: 'Configure', icon: Sparkles },
+              { step: 'status', label: 'Processing', icon: Sparkles }
+            ].map((item, index) => {
+              const Icon = item.icon
+              const isActive = currentStep === item.step
+              const isCompleted = ['transform', 'status'].includes(currentStep) && index === 0 ||
+                                currentStep === 'status' && index === 1
+              
+              return (
+                <div key={item.step} className="flex items-center">
+                  <div className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 ${
+                    isActive 
+                      ? 'bg-primary-400/20 text-primary-400' 
+                      : isCompleted
+                      ? 'bg-green-400/20 text-green-400'
+                      : 'bg-dark-700 text-dark-400'
+                  }`}>
+                    <Icon className="h-4 w-4" />
+                    <span className="text-sm font-medium">{item.label}</span>
+                  </div>
+                  {index < 2 && (
+                    <div className={`w-8 h-0.5 mx-2 ${
+                      isCompleted ? 'bg-green-400' : 'bg-dark-600'
+                    }`} />
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Content */}
+        <AnimatePresence mode="wait">
+          {currentStep === 'upload' && (
+            <motion.div
+              key="upload"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="card">
+                <h2 className="text-2xl font-semibold text-dark-100 mb-6">
+                  Upload Your Video
+                </h2>
+                <VideoUpload onVideoUploaded={handleVideoUploaded} />
+              </div>
+            </motion.div>
+          )}
+
+          {currentStep === 'transform' && (
+            <motion.div
+              key="transform"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="card">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-semibold text-dark-100">
+                    Configure Transformation
+                  </h2>
+                  <button
+                    onClick={resetProcess}
+                    className="btn-outline flex items-center space-x-2"
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                    <span>Upload New Video</span>
+                  </button>
+                </div>
+                
+                <div className="mb-6 p-4 bg-dark-700/50 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <Video className="h-5 w-5 text-primary-400" />
+                    <div>
+                      <p className="text-dark-100 font-medium">{filename}</p>
+                      <p className="text-sm text-dark-400">Job ID: {jobId}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <TransformationForm 
+                  onSubmit={handleTransformationSubmit}
+                  loading={transforming}
+                />
+              </div>
+            </motion.div>
+          )}
+
+          {currentStep === 'status' && (
+            <motion.div
+              key="status"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="card">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-semibold text-dark-100">
+                    Transformation Status
+                  </h2>
+                  <button
+                    onClick={resetProcess}
+                    className="btn-outline flex items-center space-x-2"
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                    <span>Start New</span>
+                  </button>
+                </div>
+
+                <TransformationStatus
+                  jobId={jobId}
+                  onComplete={handleTransformationComplete}
+                  onError={handleTransformationError}
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Help Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="mt-12"
+        >
+          <div className="card">
+            <h3 className="text-lg font-semibold text-dark-100 mb-4">
+              How It Works
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="text-center">
+                <div className="w-12 h-12 bg-primary-400/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Video className="h-6 w-6 text-primary-400" />
+                </div>
+                <h4 className="font-medium text-dark-100 mb-2">1. Upload Video</h4>
+                <p className="text-sm text-dark-400">
+                  Upload any video file up to 100MB in MP4, AVI, MOV, MKV, or WebM format
+                </p>
+              </div>
+              <div className="text-center">
+                <div className="w-12 h-12 bg-primary-400/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Sparkles className="h-6 w-6 text-primary-400" />
+                </div>
+                <h4 className="font-medium text-dark-100 mb-2">2. Configure</h4>
+                <p className="text-sm text-dark-400">
+                  Describe the atmosphere you want and select style presets and conditions
+                </p>
+              </div>
+              <div className="text-center">
+                <div className="w-12 h-12 bg-primary-400/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Video className="h-6 w-6 text-primary-400" />
+                </div>
+                <h4 className="font-medium text-dark-100 mb-2">3. Download</h4>
+                <p className="text-sm text-dark-400">
+                  Wait for AI processing and download your transformed video
+                </p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </div>
+  )
+}
+
+export default VideoTransformPage 
