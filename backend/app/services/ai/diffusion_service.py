@@ -63,7 +63,7 @@ class DiffusionService:
         style_preset: Optional[str] = None,
         quality: str = "high"
     ) -> List[np.ndarray]:
-        """Transform video frames using AI diffusion"""
+        """Transform video frames using AI diffusion with improved temporal consistency"""
         
         if not frames:
             raise ValueError("No frames provided")
@@ -77,10 +77,19 @@ class DiffusionService:
             # Set generation parameters based on quality
             generation_params = self._get_generation_params(quality)
             
+            # Use consistent seed for better temporal consistency
+            base_seed = torch.randint(0, 2**32, (1,)).item()
+            generation_params["generator"] = torch.Generator(device=self.device).manual_seed(base_seed)
+            
             transformed_frames = []
             
+            # Process frames with improved consistency
             for i, frame in enumerate(frames):
                 logger.info(f"Processing frame {i+1}/{len(frames)}")
+                
+                # Use slightly different seed for each frame but maintain consistency
+                frame_seed = base_seed + i * 100  # Incremental seeds for consistency
+                generation_params["generator"] = torch.Generator(device=self.device).manual_seed(frame_seed)
                 
                 # Transform single frame
                 transformed_frame = await self._transform_single_frame(
@@ -93,9 +102,9 @@ class DiffusionService:
                 if (i + 1) % 10 == 0:
                     logger.info(f"Completed {i+1}/{len(frames)} frames")
             
-            # Apply temporal consistency
-            logger.info("Applying temporal consistency...")
-            consistent_frames = await self._apply_temporal_consistency(transformed_frames)
+            # Apply enhanced temporal consistency
+            logger.info("Applying enhanced temporal consistency...")
+            consistent_frames = await self._apply_enhanced_temporal_consistency(transformed_frames)
             
             logger.info("Frame transformation completed successfully")
             return consistent_frames
@@ -191,7 +200,9 @@ class DiffusionService:
         prompt_parts.extend([
             "high quality",
             "detailed",
-            "professional photography"
+            "professional photography",
+            "consistent lighting",
+            "stable atmosphere"
         ])
         
         # Combine all parts
@@ -201,12 +212,14 @@ class DiffusionService:
         return full_prompt
     
     def _get_generation_params(self, quality: str) -> dict:
-        """Get generation parameters based on quality setting"""
+        """Get generation parameters based on quality setting with improved consistency"""
         
         base_params = {
             "num_inference_steps": 20,
             "guidance_scale": 7.5,
-            "negative_prompt": "blurry, low quality, distorted, artifacts"
+            "negative_prompt": "blurry, low quality, distorted, artifacts, flickering, inconsistent lighting, temporal artifacts",
+            "eta": 0.0,  # Deterministic sampling for consistency
+            "do_classifier_free_guidance": True
         }
         
         quality_params = {
@@ -229,6 +242,36 @@ class DiffusionService:
         
         return base_params
     
+    async def _apply_enhanced_temporal_consistency(
+        self,
+        frames: List[np.ndarray],
+        window_size: int = 5
+    ) -> List[np.ndarray]:
+        """Apply enhanced temporal consistency to reduce flickering"""
+        
+        try:
+            if len(frames) < window_size:
+                return frames
+            
+            consistent_frames = []
+            
+            for i in range(len(frames)):
+                # Get window of frames around current frame
+                start_idx = max(0, i - window_size // 2)
+                end_idx = min(len(frames), i + window_size // 2 + 1)
+                
+                window_frames = frames[start_idx:end_idx]
+                
+                # Apply enhanced temporal smoothing
+                smoothed_frame = self._enhanced_temporal_smooth(window_frames, i - start_idx)
+                consistent_frames.append(smoothed_frame)
+            
+            return consistent_frames
+            
+        except Exception as e:
+            logger.error(f"Error applying enhanced temporal consistency: {e}")
+            return frames
+
     async def _apply_temporal_consistency(
         self,
         frames: List[np.ndarray],
@@ -259,6 +302,47 @@ class DiffusionService:
             logger.error(f"Error applying temporal consistency: {e}")
             return frames
     
+    def _enhanced_temporal_smooth(
+        self,
+        window_frames: List[np.ndarray],
+        center_idx: int
+    ) -> np.ndarray:
+        """Apply enhanced temporal smoothing with color consistency"""
+        
+        if len(window_frames) == 1:
+            return window_frames[0]
+        
+        # Convert frames to float for processing
+        float_frames = [frame.astype(np.float32) for frame in window_frames]
+        
+        # Enhanced weighting: center frame gets highest weight, others decay exponentially
+        weights = np.exp(-1.0 * np.square(np.arange(len(window_frames)) - center_idx))
+        weights = weights / np.sum(weights)
+        
+        # Apply weighted average with color space consistency
+        smoothed = np.zeros_like(float_frames[0])
+        for i, frame in enumerate(float_frames):
+            smoothed += weights[i] * frame
+        
+        # Apply additional color consistency
+        smoothed = self._apply_color_consistency(smoothed, float_frames[center_idx])
+        
+        return np.clip(smoothed, 0, 255).astype(np.uint8)
+
+    def _apply_color_consistency(self, smoothed_frame: np.ndarray, center_frame: np.ndarray) -> np.ndarray:
+        """Apply color consistency to maintain lighting and atmosphere"""
+        
+        # Calculate color statistics
+        smoothed_mean = np.mean(smoothed_frame, axis=(0, 1))
+        center_mean = np.mean(center_frame, axis=(0, 1))
+        
+        # Apply color correction to maintain consistency
+        color_ratio = center_mean / (smoothed_mean + 1e-8)  # Avoid division by zero
+        color_ratio = np.clip(color_ratio, 0.8, 1.2)  # Limit correction range
+        
+        corrected = smoothed_frame * color_ratio
+        return corrected
+
     def _temporal_smooth(
         self,
         window_frames: List[np.ndarray],

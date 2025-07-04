@@ -49,7 +49,7 @@ const TransformationStatus = ({ jobId, onComplete, onError }: TransformationStat
 
     const pollStatus = async () => {
       try {
-        const response = await fetch(`/api/v1/video/status/${jobId}`)
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/video/status/${jobId}`)
         if (!response.ok) throw new Error('Failed to fetch status')
         
         const data: JobStatus = await response.json()
@@ -87,7 +87,7 @@ const TransformationStatus = ({ jobId, onComplete, onError }: TransformationStat
     if (!status?.output_url) return
 
     try {
-      const response = await fetch(`/api/v1/video/download/${jobId}`)
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/video/download/${jobId}`)
       if (!response.ok) throw new Error('Download failed')
 
       const blob = await response.blob()

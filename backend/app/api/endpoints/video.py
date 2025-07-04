@@ -274,6 +274,28 @@ async def process_video_transformation(
         })
 
 
+@router.get("/test-models")
+async def test_models():
+    """Test if AI models can be loaded"""
+    try:
+        from app.services.ai.diffusion_service import DiffusionService
+        
+        # Try to initialize the diffusion service
+        diffusion_service = DiffusionService()
+        
+        return {
+            "status": "success",
+            "message": "AI models loaded successfully",
+            "device": diffusion_service.device
+        }
+    except Exception as e:
+        logger.error(f"Model test failed: {e}")
+        return {
+            "status": "error",
+            "message": f"Failed to load models: {str(e)}"
+        }
+
+
 @router.get("/jobs", response_model=List[VideoStatusResponse])
 async def list_jobs():
     """List all video transformation jobs"""

@@ -24,7 +24,7 @@ const VideoTransformPage = () => {
     setTransforming(true)
     
     try {
-      const response = await fetch(`/api/v1/video/transform`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/video/transform?job_id=${jobId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

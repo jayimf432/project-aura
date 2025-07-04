@@ -63,7 +63,7 @@ const VideoUpload = ({ onVideoUploaded, onUploadProgress }: VideoUploadProps) =>
         })
       }, 200)
 
-      const response = await fetch('/api/v1/video/upload', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/video/upload`, {
         method: 'POST',
         body: formData
       })
