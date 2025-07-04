@@ -40,22 +40,20 @@ check_requirements() {
         exit 1
     fi
     
-    # Check Node.js
+    # Check Node.js (optional for backend-only setup)
     if command -v node &> /dev/null; then
         NODE_VERSION=$(node --version | cut -d'v' -f2)
         print_success "Node.js $NODE_VERSION found"
     else
-        print_error "Node.js 18+ is required but not installed"
-        exit 1
+        print_warning "Node.js not found - frontend setup will be skipped"
     fi
     
-    # Check npm
+    # Check npm (optional for backend-only setup)
     if command -v npm &> /dev/null; then
         NPM_VERSION=$(npm --version)
         print_success "npm $NPM_VERSION found"
     else
-        print_error "npm is required but not installed"
-        exit 1
+        print_warning "npm not found - frontend setup will be skipped"
     fi
     
     # Check Docker (optional)
@@ -241,8 +239,12 @@ main() {
     # Setup backend
     setup_backend
     
-    # Setup frontend
-    setup_frontend
+    # Setup frontend (only if Node.js is available)
+    if command -v node &> /dev/null && command -v npm &> /dev/null; then
+        setup_frontend
+    else
+        print_warning "Skipping frontend setup - Node.js/npm not available"
+    fi
     
     # Create environment files
     create_env_files

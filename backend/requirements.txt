@@ -58,7 +58,7 @@ pydantic-settings==2.1.0
 loguru==0.7.2
 
 # Security
-cryptography==41.0.8
+cryptography>=41.0.0
 
 # File handling
 pathlib2==2.3.7

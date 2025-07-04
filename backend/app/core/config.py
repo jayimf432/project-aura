@@ -3,7 +3,8 @@ Configuration settings for Project Aura
 """
 
 from pydantic_settings import BaseSettings
-from typing import List, Optional
+from pydantic import field_validator, field_serializer
+from typing import List, Optional, Union
 import os
 
 
@@ -21,12 +22,19 @@ class Settings(BaseSettings):
     PORT: int = 8000
     
     # CORS
-    CORS_ORIGINS: List[str] = [
+    CORS_ORIGINS: Union[str, List[str]] = [
         "http://localhost:5173",
         "http://127.0.0.1:5173",
         "http://localhost:3000",
         "http://127.0.0.1:3000"
     ]
+    
+    @field_validator('CORS_ORIGINS', mode='before')
+    @classmethod
+    def parse_cors_origins(cls, v):
+        if isinstance(v, str):
+            return [origin.strip() for origin in v.split(",")]
+        return v
     
     # File uploads
     MAX_FILE_SIZE: int = 100 * 1024 * 1024  # 100MB
@@ -60,7 +68,7 @@ class Settings(BaseSettings):
     HUGGINGFACE_API_KEY: Optional[str] = None
     
     class Config:
-        env_file = ".env"
+        env_file = None  # Temporarily disable .env loading
         case_sensitive = True
 
 
