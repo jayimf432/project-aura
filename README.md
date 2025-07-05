@@ -115,6 +115,44 @@ To empower creators with an AI-native tool for cinematic control over video. Aur
    - Backend API: `http://YOUR_SERVER_IP:8000`
    - API Docs: `http://YOUR_SERVER_IP:8000/docs`
 
+#### Option 3: RunPod GPU Server Setup (Recommended for AI Processing)
+
+1. **Create RunPod Instance**
+   - Choose GPU: RTX 4090, A100, or similar (CUDA 12.x)
+   - OS: Ubuntu 22.04 or PyTorch base image
+   - Connect to your instance
+
+2. **Clone and Setup**
+   ```bash
+   git clone https://github.com/jayimf432/project-aura.git
+   cd project-aura
+   ```
+
+3. **Run RunPod Setup Script**
+   ```bash
+   ./setup-runpod.sh
+   ```
+
+4. **Start the Application**
+   ```bash
+   ./start-runpod.sh
+   ```
+
+5. **Access Your Application**
+   - Frontend: `http://localhost:5173` (or your RunPod port)
+   - Backend API: `http://localhost:8000` (or your RunPod port)
+   - API Docs: `http://localhost:8000/docs` (or your RunPod port)
+
+**RunPod Environment Variables:**
+- `RUNPOD_PORT`: Backend port (default: 8000)
+- `FRONTEND_PORT`: Frontend port (default: 5173)
+
+**RunPod Features:**
+- Automatic CUDA detection and PyTorch installation
+- Production-ready environment configuration
+- Optimized for RunPod's networking and port management
+- Automatic system dependency installation
+
 ### Environment Variables
 
 Create `.env` files in both `backend/` and `frontend/` directories:
@@ -162,11 +200,12 @@ project-aura/
 
 ## 🔧 Recent Updates & Troubleshooting
 
-### Platform Migration (Mac M1/M2 → Vast.ai Linux/CUDA)
+### Platform Migration (Mac M1/M2 → Vast.ai/RunPod Linux/CUDA)
 - ✅ **PyTorch**: Updated from Apple Silicon (MPS) to CUDA 12.1
 - ✅ **Dependencies**: Fixed version conflicts between `diffusers`, `transformers`, and `huggingface_hub`
 - ✅ **System Dependencies**: Added OpenCV and other Linux-specific requirements
 - ✅ **Configuration**: Fixed CORS_ORIGINS parsing for environment variables
+- ✅ **RunPod Support**: Added dedicated setup script and configuration for RunPod environments
 
 ### Common Issues & Solutions
 
@@ -199,6 +238,28 @@ pydantic_settings.sources.SettingsError: error parsing value for field "CORS_ORI
 # For CUDA 12.x systems
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 ```
+
+**5. RunPod-Specific Issues:**
+
+**Port Configuration:**
+```bash
+# Set custom ports if needed
+export RUNPOD_PORT=8000
+export FRONTEND_PORT=5173
+```
+
+**GPU Detection on RunPod:**
+```bash
+# Check if GPU is available
+nvidia-smi
+
+# If no GPU detected, the setup will automatically use CPU mode
+```
+
+**RunPod Network Access:**
+- Ensure your RunPod instance has the correct port forwarding configured
+- Use `localhost` instead of external IP addresses in the application
+- The setup script automatically configures for RunPod's networking environment
 
 ## 🤝 Contributing
 

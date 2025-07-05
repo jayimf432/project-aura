@@ -24,7 +24,7 @@ const VideoTransformPage = () => {
     setTransforming(true)
     
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/video/transform?job_id=${jobId}`, {
+      const response = await fetch(`${(import.meta as any).env.VITE_API_URL}/api/v1/video/transform?job_id=${jobId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -69,7 +69,7 @@ const VideoTransformPage = () => {
   }
 
   return (
-    <div className="min-h-screen py-12">
+    <div className="min-h-screen py-12 bg-primary">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
@@ -79,10 +79,10 @@ const VideoTransformPage = () => {
           className="text-center mb-12"
         >
           <div className="flex items-center justify-center space-x-2 mb-4">
-            <Video className="h-8 w-8 text-primary-400" />
-            <h1 className="text-4xl font-bold text-dark-100">Video Transformation</h1>
+            <Video className="h-8 w-8 text-blue-500" />
+            <h1 className="text-4xl font-bold text-primary">Video Transformation</h1>
           </div>
-          <p className="text-xl text-dark-300">
+          <p className="text-xl text-secondary">
             Upload your video and transform it with AI-powered cinematic effects
           </p>
         </motion.div>
@@ -104,17 +104,17 @@ const VideoTransformPage = () => {
                 <div key={item.step} className="flex items-center">
                   <div className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 ${
                     isActive 
-                      ? 'bg-primary-400/20 text-primary-400' 
+                      ? 'bg-blue-500/20 text-blue-500' 
                       : isCompleted
-                      ? 'bg-green-400/20 text-green-400'
-                      : 'bg-dark-700 text-dark-400'
+                      ? 'bg-green-500/20 text-green-500'
+                      : 'bg-tertiary text-tertiary'
                   }`}>
                     <Icon className="h-4 w-4" />
                     <span className="text-sm font-medium">{item.label}</span>
                   </div>
                   {index < 2 && (
                     <div className={`w-8 h-0.5 mx-2 ${
-                      isCompleted ? 'bg-green-400' : 'bg-dark-600'
+                      isCompleted ? 'bg-green-500' : 'bg-tertiary'
                     }`} />
                   )}
                 </div>
@@ -134,7 +134,7 @@ const VideoTransformPage = () => {
               transition={{ duration: 0.3 }}
             >
               <div className="card">
-                <h2 className="text-2xl font-semibold text-dark-100 mb-6">
+                <h2 className="text-2xl font-semibold text-primary mb-6">
                   Upload Your Video
                 </h2>
                 <VideoUpload onVideoUploaded={handleVideoUploaded} />
@@ -152,7 +152,7 @@ const VideoTransformPage = () => {
             >
               <div className="card">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-semibold text-dark-100">
+                  <h2 className="text-2xl font-semibold text-primary">
                     Configure Transformation
                   </h2>
                   <button
@@ -164,12 +164,12 @@ const VideoTransformPage = () => {
                   </button>
                 </div>
                 
-                <div className="mb-6 p-4 bg-dark-700/50 rounded-lg">
+                <div className="mb-6 p-4 bg-tertiary rounded-lg">
                   <div className="flex items-center space-x-3">
-                    <Video className="h-5 w-5 text-primary-400" />
+                    <Video className="h-5 w-5 text-blue-500" />
                     <div>
-                      <p className="text-dark-100 font-medium">{filename}</p>
-                      <p className="text-sm text-dark-400">Job ID: {jobId}</p>
+                      <p className="text-primary font-medium">{filename}</p>
+                      <p className="text-sm text-secondary">Job ID: {jobId}</p>
                     </div>
                   </div>
                 </div>
@@ -192,7 +192,7 @@ const VideoTransformPage = () => {
             >
               <div className="card">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-semibold text-dark-100">
+                  <h2 className="text-2xl font-semibold text-primary">
                     Transformation Status
                   </h2>
                   <button
@@ -222,34 +222,34 @@ const VideoTransformPage = () => {
           className="mt-12"
         >
           <div className="card">
-            <h3 className="text-lg font-semibold text-dark-100 mb-4">
+            <h3 className="text-lg font-semibold text-primary mb-4">
               How It Works
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="text-center">
-                <div className="w-12 h-12 bg-primary-400/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Video className="h-6 w-6 text-primary-400" />
+                <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Video className="h-6 w-6 text-blue-500" />
                 </div>
-                <h4 className="font-medium text-dark-100 mb-2">1. Upload Video</h4>
-                <p className="text-sm text-dark-400">
+                <h4 className="font-medium text-primary mb-2">1. Upload Video</h4>
+                <p className="text-sm text-secondary">
                   Upload any video file up to 100MB in MP4, AVI, MOV, MKV, or WebM format
                 </p>
               </div>
               <div className="text-center">
-                <div className="w-12 h-12 bg-primary-400/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Sparkles className="h-6 w-6 text-primary-400" />
+                <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Sparkles className="h-6 w-6 text-blue-500" />
                 </div>
-                <h4 className="font-medium text-dark-100 mb-2">2. Configure</h4>
-                <p className="text-sm text-dark-400">
+                <h4 className="font-medium text-primary mb-2">2. Configure</h4>
+                <p className="text-sm text-secondary">
                   Describe the atmosphere you want and select style presets and conditions
                 </p>
               </div>
               <div className="text-center">
-                <div className="w-12 h-12 bg-primary-400/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Video className="h-6 w-6 text-primary-400" />
+                <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Video className="h-6 w-6 text-blue-500" />
                 </div>
-                <h4 className="font-medium text-dark-100 mb-2">3. Download</h4>
-                <p className="text-sm text-dark-400">
+                <h4 className="font-medium text-primary mb-2">3. Download</h4>
+                <p className="text-sm text-secondary">
                   Wait for AI processing and download your transformed video
                 </p>
               </div>

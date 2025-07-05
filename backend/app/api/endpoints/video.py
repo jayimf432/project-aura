@@ -13,7 +13,7 @@ from loguru import logger
 
 from app.core.config import settings
 from app.services.video.video_processor import VideoProcessor
-from app.services.ai.diffusion_service import DiffusionService
+from app.services.ai.svd_service import SVDService
 
 router = APIRouter()
 
@@ -211,49 +211,48 @@ async def process_video_transformation(
     style_preset: Optional[str],
     quality: str
 ):
-    """Background task for video transformation"""
-    
+    """Background task for video transformation using Stable Video Diffusion"""
     try:
         job = job_status[job_id]
         input_file = job["input_file"]
-        
+
         # Initialize services
         video_processor = VideoProcessor()
-        diffusion_service = DiffusionService()
-        
+        svd_service = SVDService()
+
         # Update progress
         job_status[job_id].update({
             "progress": 20,
             "message": "Processing video frames...",
             "updated_at": datetime.utcnow().isoformat()
         })
-        
-        # Process video frames
+
+        # Process video frames (extract first frame for SVD conditioning)
         frames = await video_processor.extract_frames(input_file)
-        
+
         job_status[job_id].update({
             "progress": 40,
-            "message": "Applying AI transformations...",
+            "message": "Applying Stable Video Diffusion...",
             "updated_at": datetime.utcnow().isoformat()
         })
-        
-        # Apply AI transformations
-        transformed_frames = await diffusion_service.transform_frames(
+
+        # Apply SVD transformation (video-to-video)
+        transformed_frames = await svd_service.transform_video(
             frames, prompt, conditions, style_preset, quality
         )
-        
+
         job_status[job_id].update({
             "progress": 80,
             "message": "Generating final video...",
             "updated_at": datetime.utcnow().isoformat()
         })
-        
+
         # Generate output video
         output_filename = f"aura_{job_id}.mp4"
         output_path = os.path.join(settings.OUTPUT_DIR, output_filename)
-        
+
         await video_processor.create_video(transformed_frames, output_path)
-        
+
         # Update job status to completed
         job_status[job_id].update({
             "status": "completed",
@@ -262,9 +261,9 @@ async def process_video_transformation(
             "output_file": output_path,
             "updated_at": datetime.utcnow().isoformat()
         })
-        
+
         logger.info(f"Video transformation completed: {job_id}")
-        
+
     except Exception as e:
         logger.error(f"Error in video transformation: {e}")
         job_status[job_id].update({

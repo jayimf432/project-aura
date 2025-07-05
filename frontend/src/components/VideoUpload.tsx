@@ -63,7 +63,7 @@ const VideoUpload = ({ onVideoUploaded, onUploadProgress }: VideoUploadProps) =>
         })
       }, 200)
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/video/upload`, {
+      const response = await fetch(`${(import.meta as any).env.VITE_API_URL}/api/v1/video/upload`, {
         method: 'POST',
         body: formData
       })
@@ -122,28 +122,28 @@ const VideoUpload = ({ onVideoUploaded, onUploadProgress }: VideoUploadProps) =>
               {...getRootProps()}
               className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all duration-200 ${
                 isDragActive
-                  ? 'border-primary-400 bg-primary-400/10'
-                  : 'border-dark-600 hover:border-primary-400 hover:bg-dark-700/50'
+                  ? 'border-blue-500 bg-blue-500/10'
+                  : 'border-primary hover:border-blue-500 hover:bg-tertiary/50'
               }`}
             >
               <input {...getInputProps()} />
               
               <div className="flex flex-col items-center space-y-4">
                 <div className={`p-4 rounded-full ${
-                  isDragActive ? 'bg-primary-400/20' : 'bg-dark-700'
+                  isDragActive ? 'bg-blue-500/20' : 'bg-tertiary'
                 }`}>
                   {uploading ? (
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-400"></div>
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
                   ) : (
-                    <Upload className="h-8 w-8 text-primary-400" />
+                    <Upload className="h-8 w-8 text-blue-500" />
                   )}
                 </div>
                 
                 <div>
-                  <h3 className="text-lg font-semibold text-dark-100 mb-2">
+                  <h3 className="text-lg font-semibold text-primary mb-2">
                     {uploading ? 'Uploading...' : 'Upload Video'}
                   </h3>
-                  <p className="text-dark-300">
+                  <p className="text-secondary">
                     {isDragActive
                       ? 'Drop your video here'
                       : 'Drag & drop a video file, or click to browse'
@@ -153,21 +153,21 @@ const VideoUpload = ({ onVideoUploaded, onUploadProgress }: VideoUploadProps) =>
 
                 {uploading && (
                   <div className="w-full max-w-xs">
-                    <div className="bg-dark-700 rounded-full h-2">
+                    <div className="bg-tertiary rounded-full h-2">
                       <motion.div
-                        className="bg-primary-400 h-2 rounded-full"
+                        className="bg-blue-500 h-2 rounded-full"
                         initial={{ width: 0 }}
                         animate={{ width: `${uploadProgress}%` }}
                         transition={{ duration: 0.3 }}
                       />
                     </div>
-                    <p className="text-sm text-dark-400 mt-2">
+                    <p className="text-sm text-secondary mt-2">
                       {uploadProgress}% complete
                     </p>
                   </div>
                 )}
 
-                <div className="text-sm text-dark-400">
+                <div className="text-sm text-tertiary">
                   <p>Supported formats: MP4, AVI, MOV, MKV, WebM</p>
                   <p>Maximum file size: 100MB</p>
                 </div>
@@ -181,52 +181,42 @@ const VideoUpload = ({ onVideoUploaded, onUploadProgress }: VideoUploadProps) =>
             exit={{ opacity: 0, y: -20 }}
             className="w-full"
           >
-            <div className="card border-primary-500/50">
+            <div className="card border-blue-500/50">
               <div className="flex items-center space-x-4">
-                <div className="p-3 bg-primary-400/20 rounded-lg">
-                  <Video className="h-6 w-6 text-primary-400" />
+                <div className="p-3 bg-blue-500/20 rounded-lg">
+                  <Video className="h-6 w-6 text-blue-500" />
                 </div>
                 
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-lg font-semibold text-dark-100 truncate">
+                  <h3 className="text-lg font-semibold text-primary truncate">
                     {uploadedFile.name}
                   </h3>
-                  <p className="text-sm text-dark-400">
+                  <p className="text-sm text-secondary">
                     {formatFileSize(uploadedFile.size)}
                   </p>
                 </div>
 
                 <div className="flex items-center space-x-2">
                   {uploadProgress === 100 ? (
-                    <CheckCircle className="h-5 w-5 text-green-400" />
+                    <div className="flex items-center space-x-1 text-green-500">
+                      <CheckCircle className="h-5 w-5" />
+                      <span className="text-sm font-medium">Uploaded</span>
+                    </div>
                   ) : uploading ? (
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary-400"></div>
+                    <div className="flex items-center space-x-1 text-blue-500">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
+                      <span className="text-sm font-medium">Uploading...</span>
+                    </div>
                   ) : (
                     <button
                       onClick={removeFile}
-                      className="p-1 hover:bg-dark-600 rounded transition-colors"
+                      className="p-2 text-tertiary hover:text-primary hover:bg-tertiary rounded-lg transition-colors duration-200"
                     >
-                      <X className="h-4 w-4 text-dark-400 hover:text-red-400" />
+                      <X className="h-5 w-5" />
                     </button>
                   )}
                 </div>
               </div>
-
-              {uploading && (
-                <div className="mt-4">
-                  <div className="bg-dark-700 rounded-full h-2">
-                    <motion.div
-                      className="bg-primary-400 h-2 rounded-full"
-                      initial={{ width: 0 }}
-                      animate={{ width: `${uploadProgress}%` }}
-                      transition={{ duration: 0.3 }}
-                    />
-                  </div>
-                  <p className="text-sm text-dark-400 mt-2">
-                    {uploadProgress}% complete
-                  </p>
-                </div>
-              )}
             </div>
           </motion.div>
         )}

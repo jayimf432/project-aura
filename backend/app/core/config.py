@@ -46,6 +46,7 @@ class Settings(BaseSettings):
     # AI Models
     DIFFUSION_MODEL_ID: str = "runwayml/stable-diffusion-v1-5"
     CONTROLNET_MODEL_ID: str = "lllyasviel/control_v11p_sd15_canny"
+    SVD_MODEL_ID: str = "stabilityai/stable-video-diffusion-img2vid-xt"
     LLM_MODEL_ID: str = "gpt2"  # Placeholder, will be replaced with actual LLM
     
     # Video Processing

@@ -12,6 +12,7 @@ from loguru import logger
 
 from app.core.config import settings
 from app.api.endpoints import video, ai_director, health
+from app.api.endpoints import image
 
 
 @asynccontextmanager
@@ -58,6 +59,7 @@ app.add_middleware(
 app.include_router(health.router, prefix="/api/v1", tags=["health"])
 app.include_router(video.router, prefix="/api/v1/video", tags=["video"])
 app.include_router(ai_director.router, prefix="/api/v1/ai-director", tags=["ai-director"])
+app.include_router(image.router, prefix="/api/v1/image", tags=["image"])
 
 # Mount static files for serving generated videos
 app.mount("/outputs", StaticFiles(directory="outputs"), name="outputs")

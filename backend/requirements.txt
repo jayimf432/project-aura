@@ -21,6 +21,7 @@ transformers==4.35.2
 accelerate==0.24.1
 safetensors==0.4.0
 xformers==0.0.22.post7
+huggingface_hub==0.19.4
 
 # Computer Vision and Video Processing
 opencv-python==4.8.1.78
